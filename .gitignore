@@ -1,0 +1,5 @@
+/out/*
+/.vs/*
+*.aps
+*.filters
+*.user
