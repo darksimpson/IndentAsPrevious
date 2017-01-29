@@ -129,6 +129,22 @@ void toggle()
 	}
 }
 
+bool isCharLineEnd(HWND curScintilla, int ch)
+{
+	int eol_mode = SendMessage(curScintilla, SCI_GETEOLMODE, 0, 0);
+
+	switch (eol_mode)
+	{
+		case SC_EOL_CRLF:
+		case SC_EOL_LF:
+			return ch == '\n';
+		case SC_EOL_CR:
+			return ch == '\r';
+	}
+
+	return false;
+}
+
 HWND getCurrentScintilla()
 {
 	int which = -1;
@@ -199,7 +215,7 @@ extern "C" __declspec(dllexport) void beNotified(SCNotification *notifyCode)
 	{
 		case SCN_CHARADDED:
 		{
-			if (notifyCode->ch == '\n')
+			if (isCharLineEnd(getCurrentScintilla(), notifyCode->ch))
 			{
 				basicAutoIndent();
 			}
