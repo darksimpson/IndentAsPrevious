@@ -1,0 +1,72 @@
+version: 1.0.1.{build}
+image: Visual Studio 2015
+
+
+environment:
+  matrix:
+    #- PlatformToolset: v120_xp
+    - PlatformToolset: v140_xp
+
+platform:
+    - x64
+    - Win32
+
+configuration:
+    - u_release
+    - u_debug
+    - a_release
+    - a_debug
+
+
+install:
+    - if "%platform%"=="x64" set archi=amd64
+    - if "%platform%"=="Win32" set archi=x86
+    - call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" %archi%
+
+build:
+    parallel: true                  # enable MSBuild parallel builds
+    verbosity: minimal
+
+build_script:
+    - cd "%APPVEYOR_BUILD_FOLDER%"
+    - msbuild IndentAsPrevious.sln /m /p:configuration="%configuration%" /p:platform="%platform%" /p:PlatformToolset="%PlatformToolset%"
+
+after_build:
+    - cd "%APPVEYOR_BUILD_FOLDER%"
+    - ps: >-
+
+        if ($env:PLATFORM -eq "x64") {
+            #Push-AppveyorArtifact "out\$env:PLATFORM\$env:CONFIGURATION\IndentAsPrevious.dll" -FileName IndentAsPrevious.dll
+        }
+
+        if ($env:PLATFORM -eq "Win32" ) {
+            #Push-AppveyorArtifact "out\$env:CONFIGURATION\IndentAsPrevious.dll" -FileName IndentAsPrevious.dll
+        }
+
+        if ($($env:APPVEYOR_REPO_TAG) -eq "true" -and $env:CONFIGURATION -eq "u_release" -and $env:PLATFORMTOOLSET -eq "v140_xp") {
+            if($env:PLATFORM -eq "x64"){
+            $ZipFileName = "IndentAsPrevious_$($env:APPVEYOR_REPO_TAG_NAME)_x64.zip"
+            7z a $ZipFileName out\$env:PLATFORM\$env:CONFIGURATION\IndentAsPrevious.dll
+            }
+            if($env:PLATFORM -eq "Win32"){
+            $ZipFileName = "IndentAsPrevious_$($env:APPVEYOR_REPO_TAG_NAME)_x86.zip"
+            7z a $ZipFileName out\$env:CONFIGURATION\IndentAsPrevious.dll
+            }
+        }
+
+artifacts:
+  - path: IndentAsPrevious_*.zip
+    name: releases
+
+deploy:
+    provider: GitHub
+    auth_token:
+        secure: !!TODO, see https://www.appveyor.com/docs/deployment/github/#provider-settings!!
+    artifact: releases
+    draft: false
+    prerelease: false
+    force_update: true
+    on:
+        appveyor_repo_tag: true
+        PlatformToolset: v140_xp
+        configuration: Release
