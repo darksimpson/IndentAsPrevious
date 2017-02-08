@@ -22,11 +22,11 @@ void pluginInit(HANDLE hModule)
 	{
 		return;
 	}
-	if (!SUCCEEDED(PathAppend(iniFilePath, TEXT("Notepad++\\plugins\\config"))))
+	if (!PathAppend(iniFilePath, TEXT("Notepad++\\plugins\\config")))
 	{
 		return;
 	}
-	if (!SUCCEEDED(PathAppend(iniFilePath, NPP_PLUGIN_NAME)))
+	if (!PathAppend(iniFilePath, NPP_PLUGIN_NAME))
 	{
 		return;
 	}
