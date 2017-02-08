@@ -63,7 +63,7 @@ bool setCommand(size_t index, TCHAR *cmdName, PFUNCPLUGINCMD pFunc, ShortcutKey 
 		return false;
 	}
 
-	StringCchCopy(funcItem[index]._itemName, sizeof(funcItem[index]._itemName), cmdName);
+	StringCchCopy(funcItem[index]._itemName, sizeof(funcItem[index]._itemName)/sizeof(TCHAR), cmdName);
 	funcItem[index]._pFunc = pFunc;
 	funcItem[index]._init2Check = checkOnInit;
 	funcItem[index]._pShKey = sk;
